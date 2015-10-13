@@ -1,0 +1,28 @@
+== README
+
+Test app for fixture appload to db from /fixtures/ directory
+
+Assuming:
+
+1. Using postgreSQL DB => gem 'pg'
+2. There is tables in DB(with PRIMARY KEY == id) corresponding to file base_names you want to upload : table_name = "base_name"+"s"
+3. postgreSQL connects with:
+  host: localhost
+  port: 5432
+  database: testapp
+  username: postgres
+  password: 123456
+
+  It can be changed in lib/fixture/dbconnect.rb or
+  on DBconnect.instance().connect(localhost,port,database,username,password) first call
+
+
+Abstract factory for file extensions: Ini and Json.
+
+Install:
+  > bundle install
+
+Usage: 
+  rake import  # imports files from fixtures/table_name.(json|ini) if table_name already exists
+  rake check # prints whole db to console
+  rake find["table_name",id] # returns record from table_name with ID = id (.find check)
