@@ -7,7 +7,7 @@ module Base
 
   def self.connection
     establish_connection unless DBconnect.instance().con
-    DBconnect.instance().con
+    DBconnect.instance()
   end
 
   def self.table_names

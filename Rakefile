@@ -6,7 +6,7 @@ $LOAD_PATH << File.expand_path('../lib', __FILE__)
 require 'fixturer'
 
 task :default do
-  puts AbstractFactory::JsonFactory.instance_methods.sort
-  puts fixture
-  puts factory
+  con = DBconnect.instance().connect
+
+  puts Posts.where("id = ?",[30])
 end

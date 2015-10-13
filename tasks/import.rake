@@ -1,5 +1,5 @@
 task :import do
-  Dir.glob('fixtures/*').select {|f| f =~ /.(json|ini)$/}.each do |file|
+  Dir.glob('fixtures/*').each do |file|
     if File.extname(file) == '.ini'
       Fixture.new(File.basename(file,'.*'),IniFactory).save_to_db
     elsif File.extname(file) == '.json'

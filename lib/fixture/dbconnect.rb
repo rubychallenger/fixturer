@@ -11,7 +11,10 @@ class DBconnect
     @conn
   end
 
-  def query(sql_query)
-    @conn.exec_params(sql_query)
+  def query(query,safe_params=[])
+    (1..safe_params.length).each do |index|
+      query = query.sub('?',"$#{index} ")
+    end
+    @conn.exec_params(query,safe_params)
   end
 end

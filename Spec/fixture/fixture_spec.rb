@@ -1,8 +1,10 @@
 require 'spec_helper'
+require 'fake_record'
+require 'fixture'
 
 module Fixturer
   describe "fixture" do
-    before(:each) do
+    before(:all) do
       File.open(File.expand_path('../../../fixtures', __FILE__)+"/human.ini","w+") do |f|
         f.write("data['alias1']['name'] = 'San' \ndata['alias1']['last_name'] = 'Bom' \ndata['alias1']['age'] = 20")
       end
@@ -14,11 +16,11 @@ module Fixturer
         NAME           TEXT,
         LAST_NAME      TEXT )
       ")
-      require 'fake_record'
-      require 'fixture'
+
+      DBclasses.create_class_for_table('humans') unless Object.const_defined? 'Humans'
     end
 
-    after(:each) do
+    after(:all) do
       DBconnect.instance().query("
         DROP TABLE humans
       ")
@@ -27,15 +29,15 @@ module Fixturer
 
     it "initializes a factory on new" do
       fix = Fixture.new("human",IniFactory)
-      expect(fix.instance_variable_get("@info")).to be_a IniFactory::IniFile
+      fix.instance_variable_get("@info").should be_a IniFactory::IniFile
     end
 
     it "parses file to array of hashes through factory" do
       fix = Fixture.new("human",IniFactory)
       info = fix.instance_variable_get("@info").parse('human')
-      expect(info).to be_a Array
+      info.should be_a Array
       info.each do |i|
-        expect(i).to be_a Hash
+        i.should be_a Hash
       end
     end
 
@@ -43,9 +45,9 @@ module Fixturer
       fix = Fixture.new("human",IniFactory)
       fix.save_to_db
 
-      expect(Humans.find(1).name).to eq 'San'
-      expect(Humans.find(1).last_name).to eq 'Bom'
-      expect(Humans.find(1)).to_not respond_to :age, :age=
+      Humans.find(1).name.should == 'San'
+      Humans.find(1).last_name.should == 'Bom'
+      Humans.find(1).should_not respond_to :age, :age=
     end
   end 
 end

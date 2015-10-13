@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'dbconnect'
+require 'fake_record'
 
 module Fixturer
   describe "FakeRecord" do
@@ -11,7 +11,7 @@ module Fixturer
         NAME           TEXT,
         LAST_NAME      TEXT)
       ")
-      require 'fake_record'
+      FakeRecord.create_class_for_table('humans') unless Object.const_defined? 'Humans'
     end
 
     after(:all) do
