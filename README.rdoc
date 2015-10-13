@@ -23,6 +23,6 @@ Install:
   bundle install
 
 Usage: 
-  rake import  # imports files from fixtures/table_name.(json|ini) if table_name already exists
+  rake import  # imports files from fixtures/table_name.(json|ini) if table 'table_name' already exists
   rake check # prints whole db to console
   rake find["table_name",id] # returns record from table_name with ID = id (.find check)
