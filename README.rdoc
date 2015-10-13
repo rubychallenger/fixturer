@@ -1,6 +1,6 @@
 == README
 
-Test app for fixture appload to db from /fixtures/ directory
+Rake task for fixture upload to db from /fixtures/ directory
 
 Assuming:
 
@@ -13,14 +13,14 @@ Assuming:
   username: postgres
   password: 123456
 
-  It can be changed in lib/fixture/dbconnect.rb or
-  on DBconnect.instance().connect(localhost,port,database,username,password) first call
+It can be changed in lib/fixture/dbconnect.rb or
+on DBconnect.instance().connect(localhost,port,database,username,password) first call
 
 
 Abstract factory for file extensions: Ini and Json.
 
 Install:
-  > bundle install
+  bundle install
 
 Usage: 
   rake import  # imports files from fixtures/table_name.(json|ini) if table_name already exists
