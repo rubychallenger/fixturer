@@ -45,13 +45,9 @@ module FakeRecord
 
     def self.where(hash_or_sql_string,*args)
       if hash_or_sql_string.is_a? Hash
-        keys = hash_or_sql_string.keys
-        values = hash_or_sql_string.values
-        sql_query = keys.inject([]){|arr,item| arr << "#{item} = ?"}.join('')
-        
-        parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE " + sql_query,values))
+        look_by_hash(hash_or_sql_string)
       elsif hash_or_sql_string.is_a? String
-        parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE "+hash_or_sql_string ,args ))
+        look_by_sql_string(hash_or_sql_string)
       else
         raise 'bad arguments'
       end
@@ -99,5 +95,19 @@ module FakeRecord
     def self.find_by_method?()
       /^find_by_([_a-zA-Z]*)[^=?]*$/
     end
+
+    private 
+
+      def self.look_by_hash(hash)
+        keys = hash.keys
+        values = hash.values
+        sql_query = keys.inject([]){|arr,item| arr << "#{item} = ?"}.join('')
+        
+        parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE " + sql_query,values))
+      end
+
+      def self.look_by_sql_string(sql_string,*args)
+        parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE "+sql_string ,args ))
+      end
   end
 end

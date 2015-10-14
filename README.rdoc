@@ -5,7 +5,9 @@ Rake task for fixture upload to db from /fixtures/ directory
 Assuming:
 
 1. Using postgreSQL DB => gem 'pg'
+
 2. There is tables in DB(with PRIMARY KEY == id) corresponding to file base_names you want to upload : table_name = "base_name"+"s"
+
 3. Supported models created in /models/{model_name}.rb with following make_up:
   Example : models/user.rb
     require 'fake_record'
