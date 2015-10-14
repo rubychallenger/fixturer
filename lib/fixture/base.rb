@@ -16,14 +16,8 @@ module FakeRecord
 
       values = (self.class.column_names - ["id"]).map {|column| "'" + (self.send(column.to_sym) if self.respond_to? column.to_sym).to_s + "'" }
 
-      puts sql_querys =  "INSERT INTO #{self.class.name.downcase}s (#{keys}) VALUES (#{values.join(',')}) "
-      begin
-        Base.connection.query(sql_querys)
-        true
-      rescue PG::SyntaxError
-        puts "SQL SYNTAX ERROR"
-        false 
-      end
+      sql_query =  "INSERT INTO #{self.class.name.downcase}s (#{keys}) VALUES (#{values.join(',')}) "
+      Base.connection.query(sql_query)
     end
 
     def get_or_set_method?()

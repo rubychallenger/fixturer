@@ -9,14 +9,14 @@ module Fixturer
         NAME           TEXT,
         LAST_NAME      TEXT)
       ")
-      FakeRecord.create_class_for_table('humans') unless Object.const_defined? 'Human'
+      FakeRecord::DBClasses.create_class_for_table('humans') unless Object.const_defined? 'Human'
       v = Human.new
       v.last_name = "Dan"
       v.save
     end
 
     after(:all) do
-      FakeRecord.delete_class('Human')
+      FakeRecord::DBClasses.delete_class('Human')
 
       DBconnect.instance().query("
         DROP TABLE humans

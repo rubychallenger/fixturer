@@ -14,7 +14,7 @@ Assuming:
   password: 123456
 
 It can be changed in lib/fixture/dbconnect.rb or
-on DBconnect.instance().connect(localhost,port,database,username,password) first call
+with DBconnect.instance().reconnect(localhost,port,database,username,password)
 
 
 Abstract factory for file extensions: Ini and Json.

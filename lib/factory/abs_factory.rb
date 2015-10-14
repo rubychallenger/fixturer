@@ -1,4 +1,5 @@
 require 'hash'
+
 class FixtureFactory
   def initialize(format)
     @format = self.class.const_get(format.capitalize+"Factory")
