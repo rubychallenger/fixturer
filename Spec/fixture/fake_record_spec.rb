@@ -22,21 +22,21 @@ module Fixturer
 
     it "creates class for every db table" do 
       v = Human.new     
-      v.should be
-      v.instance_variable_get("@attr").should include("name","last_name")
+      expect(v).to be
+      expect(v.instance_variable_get("@attr")).to include("name","last_name")
     end
 
     it "creates getter and setter method on call of db columns(e.g. .name, .name=)" do
       v = Human.new
       v.name="text"
       v.last_name="cmon"
-      v.name.should == "text"
-      v.last_name.should == "cmon"
-      v.should respond_to(:name,:name=,:last_name,:last_name=)
+      expect(v.name).to eq "text"
+      expect(v.last_name).to eq "cmon"
+      expect(v).to respond_to(:name,:name=,:last_name,:last_name=)
     end
 
     it "ensures that created classes respond to .where .find .find_by_name" do
-      Human.should respond_to(:where,:find,:find_by_name)
+      expect(Human).to respond_to(:where,:find,:find_by_name)
     end
 
     it "allows save and find of db records" do
@@ -44,9 +44,9 @@ module Fixturer
       v.name="testtext"
       v.last_name="cmontest"
       v.save
-      Human.find(1).should be_instance_of(Human)
-      Human.find(1).name.should == "testtext"
-      Human.find(1).last_name.should == "cmontest"
+      expect(Human.find(1)).to be_instance_of(Human)
+      expect(Human.find(1).name).to eq "testtext"
+      expect(Human.find(1).last_name).to eq "cmontest"
     end
   end 
 end

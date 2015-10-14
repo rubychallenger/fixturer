@@ -24,27 +24,27 @@ module Fixturer
     end
 
     it "finds a record in db using find" do
-      (Human.find(1)).should be_instance_of(Human)
-      (Human.find(1).last_name).should == "Dan"
+      expect(Human.find(1)).to be_instance_of(Human)
+      expect(Human.find(1).last_name).to eq "Dan"
     end
 
     it "finds a record in db using find_by" do
-      (a = Human.find_by_last_name("Dan")).should be_instance_of(Human)
-      (b = Human.find_by_id(1)).should be_instance_of(Human)
-      (c = Human.find_by_last_name_and_id("Dan",1)).should be_instance_of(Human)
-      a.last_name.should == "Dan"
-      b.id.should == "1"
-      c.last_name.should == "Dan"
+      expect(a = Human.find_by_last_name("Dan")).to be_instance_of(Human)
+      expect(b = Human.find_by_id(1)).to be_instance_of(Human)
+      expect(c = Human.find_by_last_name_and_id("Dan",1)).to be_instance_of(Human)
+      expect(a.last_name).to eq "Dan"
+      expect(b.id).to eq "1"
+      expect(c.last_name).to eq "Dan"
     end
 
     it "finds a record in db using where" do
-      (Human.where(last_name: 'Dan')).should be_instance_of(Human)
-      (Human.where("last_name = ?",'Dan')).should be_instance_of(Human)
-      (Human.where("last_name = 'Dan'")).should be_instance_of(Human)
-      
-      Human.where("last_name = ?",'Dan').last_name.should == 'Dan'
-      Human.where("last_name = 'Dan'").last_name.should == 'Dan'
-      Human.where(last_name: 'Dan').last_name.should == 'Dan'
+      expect(Human.where(last_name: 'Dan')).to be_instance_of(Human)
+      expect(Human.where("last_name = ?",'Dan')).to be_instance_of(Human)
+      expect(Human.where("last_name = 'Dan'")).to be_instance_of(Human)
+
+      expect(Human.where("last_name = ?",'Dan').last_name).to eq 'Dan'
+      expect(Human.where("last_name = 'Dan'").last_name).to eq 'Dan'
+      expect(Human.where(last_name: 'Dan').last_name).to eq 'Dan'
     end
   end
 end

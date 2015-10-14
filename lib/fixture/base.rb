@@ -14,12 +14,7 @@ module FakeRecord
     end
 
     def save
-      keys = (self.class.column_names - ["id"]).join(',')
-
-      values = (self.class.column_names - ["id"]).map {|column| "'" + (self.send(column.to_sym) if self.respond_to? column.to_sym).to_s + "'" }
-
-      sql_query =  "INSERT INTO #{self.class.name.downcase}s (#{keys}) VALUES (#{values.join(',')}) "
-      Base.connection.query(sql_query)
+      Base.connection.query(save_sql_query)
     end
 
     #def get_or_set_method?()
@@ -104,7 +99,7 @@ module FakeRecord
       def self.look_by_hash(hash)
         keys = hash.keys
         values = hash.values
-        sql_query = keys.inject([]){|arr,item| arr << "#{item} = ?"}.join('')
+        sql_query = keys.inject([]){|arr,item| arr << "#{item} = ?"}.join(' AND ')
         
         parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE " + sql_query,values))
       end
@@ -112,6 +107,43 @@ module FakeRecord
       def self.look_by_sql_string(sql_string,*args)
         args = args[0] if args.length == 1
         parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE "+sql_string ,args ))
+      end
+
+      def save_sql_query
+        if (updateable = self.class.where(hash_params))
+          sql_query = "UPDATE #{self.class.name}s SET " + key_value_sql + "WHERE ID = #{updateable.id}"
+        else
+          sql_query =  "INSERT INTO #{self.class.name.downcase}s (#{keys.join(',')}) VALUES (#{values.join(',')}) "
+        end
+      end
+
+      def hash_params
+        #puts Hash[keys.zip(values)]
+        Hash[keys.zip(values)]
+      end
+
+      def key_value_sql
+        result = ""
+        (0..(keys.length - 1)).each do |index|
+          result << "#{keys[index]} = #{values[index]}"
+        end
+        result
+      end
+
+      def keys
+        (self.class.column_names - ["id"])
+      end
+
+      def values
+        (self.class.column_names - ["id"]).map {|column| convert((self.send(column.to_sym) if self.respond_to? column.to_sym)) }
+      end
+
+      def convert(convertible)
+        if convertible.is_a? String or convertible.is_a? NilClass
+          "'" + convertible.to_s + "'"
+        else
+          convertible
+        end
       end
   end
 end
