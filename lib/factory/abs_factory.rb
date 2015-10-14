@@ -8,7 +8,6 @@ class FixtureFactory
     @format.new(name)
   end
 
-
   class IniFactory
     def initialize(table_name)
       @table_name = table_name
@@ -60,8 +59,6 @@ class Fixture < FixtureFactory
   end
 
   def save_to_db
-    #puts @table_name
-    #ModelFactory.new(@table_name)
     begin
       rec = (Object.const_get((@table_name).capitalize)).new
     rescue NameError

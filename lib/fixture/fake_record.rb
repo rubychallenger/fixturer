@@ -1,8 +1,6 @@
 require 'dbclasses'
+require 'base'
 
-class FakeRecord
-  require 'base'
-
+module FakeRecord
   extend DBClasses
-
 end

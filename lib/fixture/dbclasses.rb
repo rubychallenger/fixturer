@@ -1,4 +1,5 @@
 require 'dbconnect'
+
 module DBClasses
   def table_names
     DBconnect.instance().query("
