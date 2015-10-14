@@ -11,10 +11,27 @@ module FakeRecord
       @attr.each do |att|
         self.class.class_eval("attr_accessor :#{att}")
       end
+      @id = set_start_id
     end
 
     def save
-      Base.connection.query(save_sql_query)
+      unless self.class.find(self.id).nil?
+        Base.connection.query(update_sql_query)
+      else
+        Base.connection.query(create_sql_query)
+        self.id = self.class.last.id.to_i
+      end
+    end
+
+    def update_attributes(hash)
+      hash.each do |k,v|
+        self.instance_eval "self.#{k}=#{v} if @attr.include? #{k}"
+      end
+      Base.connection.query(update_sql_query)
+    end
+
+    def destroy
+      Base.connection.query("DELETE FROM #{self.class.name}s WHERE ID = #{self.id};")
     end
 
     #def get_or_set_method?()
@@ -34,7 +51,9 @@ module FakeRecord
       super unless method.to_s =~ find_by_method? && !(column_names - (list = $1.split('_and_'))).empty?
       args.map! {|arg| "'#{arg}'"}
       sql_query = list.map.with_index {|name, index| "#{name} = #{args[index]}"} .join(' AND ')
-      parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE " + sql_query ))
+      val = parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE " + sql_query ))
+      return val[0] if val.length == 1
+      val
     end
 
     def self.respond_to_missing?(method, include_private = false)
@@ -52,56 +71,56 @@ module FakeRecord
     end
 
     def self.last
-      parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s ORDER BY ID DESC LIMIT 1"))
+      parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s ORDER BY ID DESC LIMIT 1"))[0]
     end
 
     def self.first
-      parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s LIMIT 1"))
+      parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s LIMIT 1"))[0]
     end
 
     def self.find(id)
       if id.is_a?(Integer)
-        parse_db_result(Base.connection.query("SELECT #{column_names.join(',')} FROM #{self.name}s WHERE ID = #{id}"))
+        parse_db_result(Base.connection.query("SELECT #{column_names.join(',')} FROM #{self.name}s WHERE ID = #{id}"))[0]
       else
         puts "Only integer id's are supported"
         return false
       end
     end
 
-    def self.column_names
-      DBconnect.instance().query("
-        select column_name
-        from information_schema.columns 
-        where table_name = '#{self.name.downcase}s'
-        ").values.flatten
-    end
-
-    #def self.create_get_and_set_method(attr_name)
-    #  class_eval("def #{attr_name}=(new_value); @#{attr_name}=new_value;end;def #{attr_name}; @#{attr_name} ;end;", __FILE__, __LINE__)
-    #end
-
-    def self.parse_db_result(pg_result_object)
-      values = pg_result_object.values.flatten
-      return if values.empty?
-      rec = self.new
-      (0..(column_names.length-1)).each do |index|
-        rec.instance_eval "self.#{column_names[index]}=values[index]"
-      end
-      rec
-    end
-
-    def self.find_by_method?()
-      /^find_by_([_a-zA-Z]*)[^=?]*$/
-    end
+    # def self.create_get_and_set_method(attr_name)
+    #   class_eval("def #{attr_name}=(new_value); @#{attr_name}=new_value;end;def #{attr_name}; @#{attr_name} ;end;", __FILE__, __LINE__)
+    # end
 
     private 
+      def self.column_names
+        DBconnect.instance().query("
+          select column_name
+          from information_schema.columns 
+          where table_name = '#{self.name.downcase}s'
+          ").values.flatten
+      end
+
+      def self.parse_db_result(pg_result_object)
+        result = []
+        pg_result_object.values.each do |value|
+          rec = self.new
+
+          (0..(column_names.length-1)).each do |index|
+            rec.instance_eval "self.#{column_names[index]}=value[index]"
+          end
+          rec
+          result << rec
+        end
+        result
+      end
+
+      def self.find_by_method?()
+        /^find_by_([_a-zA-Z]*)[^=?]*$/
+      end
 
       def self.look_by_hash(hash)
-        keys = hash.keys
-        values = hash.values
-        sql_query = keys.inject([]){|arr,item| arr << "#{item} = ?"}.join(' AND ')
-        
-        parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE " + sql_query,values))
+        sql_query = hash.keys.inject([]){|arr,item| arr << "#{item} = ?"}.join(' AND ')
+        parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE " + sql_query,hash.values))
       end
 
       def self.look_by_sql_string(sql_string,*args)
@@ -109,22 +128,22 @@ module FakeRecord
         parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE "+sql_string ,args ))
       end
 
-      def save_sql_query
-        if (updateable = self.class.where(hash_params))
-          sql_query = "UPDATE #{self.class.name}s SET " + key_value_sql + "WHERE ID = #{updateable.id}"
-        else
-          sql_query =  "INSERT INTO #{self.class.name.downcase}s (#{keys.join(',')}) VALUES (#{values.join(',')}) "
-        end
+      def create_sql_query
+        "INSERT INTO #{self.class.name}s (#{keys.join(',')}) VALUES (#{values.join(',')}) "
+      end
+
+      def update_sql_query
+        "UPDATE #{self.class.name}s SET " + key_value_sql + "WHERE ID = #{self.id}"
       end
 
       def hash_params
-        #puts Hash[keys.zip(values)]
         Hash[keys.zip(values)]
       end
 
       def key_value_sql
         result = ""
         (0..(keys.length - 1)).each do |index|
+          result << ", " if index != 0
           result << "#{keys[index]} = #{values[index]}"
         end
         result
@@ -144,6 +163,10 @@ module FakeRecord
         else
           convertible
         end
+      end
+
+      def set_start_id
+        Base.connection.query("SELECT MAX(id) FROM #{self.class.name}s").values.flatten[0].to_i + 1
       end
   end
 end

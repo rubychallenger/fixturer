@@ -7,4 +7,5 @@ Dir.glob('models/*.rb').each { |m| require m }
 require 'fixturer'
 
 task :default do
+  puts DBconnect.instance.query("SELECT MAX(id) FROM #{Test}s").values.flatten[0].to_i + 1
 end

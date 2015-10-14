@@ -9,57 +9,61 @@ describe "fixturer" do
 
   describe "FixtureFactory" do
     it "creates factory with supported format given" do
-      expect(FixtureFactory.new('ini').new_file('post')).to be_instance_of FixtureFactory::IniFactory
+      expect(FixtureFactory.new('ini').new_file('post')).to be_instance_of IniFactory
     end
 
     it "raises error if format unsupported" do
-      expect{FixtureFactory.new('dat').new_file('user')}.to raise_error(NameError)
+      expect{FixtureFactory.new('dat').new_file('test')}.to raise_error(NameError)
     end
 
     it "parses file to array of hashes if everything passed good" do
       expect(h = FixtureFactory.new('json').new_file('post').parse).to be_a Array
       h.each do |hash|
-          expect(hash).to be_a Hash
+        expect(hash).to be_a Hash
       end
     end
   end
 
   describe "save_to_db" do
-    it "save_to_db adds a record to DB table corresponding to the given model" do
-      a = User.last
-      Fixture.new('user',FixtureFactory.new('ini')).save_to_db
-      b = User.last
+    it "adds a record to DB table corresponding to the given model" do
+      a = Test.last
+      (f1 = Fixture.new('Test',FixtureFactory.new('json'))).save_to_db
+      b = Test.last
+      (f2 = Fixture.new('Test',FixtureFactory.new('json'))).save_to_db
       expect(b).to_not equal a
-      Fixture.new('user',FixtureFactory.new('ini')).save_to_db
-      c = User.last
-
+      c = Test.last
+      f1.clear_records
+      f2.clear_records
       expect(c.name).to eq b.name
       expect(c.last_name).to eq b.last_name
-      expect(c.age).to eq b.age
       expect(c).to_not equal b
+      a.destroy if a
+      b.destroy
+      c.destroy
     end
 
-    it "save_to_db raises NameError if there is no such model given" do
+    it "raises NameError if there is no such model given" do
       expect{Fixture.new('car',FixtureFactory.new('ini')).save_to_db}.to raise_error(NameError)
     end
 
-    it "save_to_db raises 'no such file or directory' if there is model of the name given but no fixture provided" do
-      expect{Fixture.new('user',FixtureFactory.new('json')).save_to_db}.to raise_error(Errno::ENOENT)
+    it "raises 'no such file or directory' if there is model of the name given but no fixture provided" do
+      expect{Fixture.new('Test',FixtureFactory.new('ini')).save_to_db}.to raise_error(Errno::ENOENT)
     end
   end
 
   describe "model" do
     it "Can find record in db after uploading it" do
-      rec = Post.new
-      rec.name = "New_name_123"
-      rec.text = "New_comment_123"
+      rec = Test.new
+      rec.name = "Sam"
+      rec.last_name = "Hit"
 
       rec.save
+      expect(Test.last.name).to eq "Sam"
+      expect(Test.last.last_name).to eq "Hit"
+      expect(Test.where(name: "Sam").last.last_name).to eq "Hit"
+      expect(Test.find_by_name("Sam").last.last_name).to eq "Hit"
 
-      expect(Post.last.name).to eq "New_name_123"
-      expect(Post.last.text).to eq "New_comment_123"
-      expect(Post.where(name: "New_name_123").text).to eq "New_comment_123"
-      expect(Post.find_by_name("New_name_123").text).to eq "New_comment_123"
+      Test.last.destroy
     end
   end
 end 
