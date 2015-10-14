@@ -38,9 +38,10 @@ module Fixturer
     end
 
     it "finds a record in db using where" do
-      (Human.where("last_name = 'Dan'")).should be_instance_of(Human)
-      (Human.where("last_name = ?",'Dan')).should be_instance_of(Human)
       (Human.where(last_name: 'Dan')).should be_instance_of(Human)
+      (Human.where("last_name = ?",'Dan')).should be_instance_of(Human)
+      (Human.where("last_name = 'Dan'")).should be_instance_of(Human)
+      
       Human.where("last_name = ?",'Dan').last_name.should == 'Dan'
       Human.where("last_name = 'Dan'").last_name.should == 'Dan'
       Human.where(last_name: 'Dan').last_name.should == 'Dan'

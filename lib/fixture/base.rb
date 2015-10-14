@@ -47,7 +47,7 @@ module FakeRecord
       if hash_or_sql_string.is_a? Hash
         look_by_hash(hash_or_sql_string)
       elsif hash_or_sql_string.is_a? String
-        look_by_sql_string(hash_or_sql_string)
+        look_by_sql_string(hash_or_sql_string, args)
       else
         raise 'bad arguments'
       end
@@ -107,6 +107,7 @@ module FakeRecord
       end
 
       def self.look_by_sql_string(sql_string,*args)
+        args = args[0] if args.length == 1
         parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE "+sql_string ,args ))
       end
   end
