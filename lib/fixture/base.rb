@@ -41,10 +41,10 @@ class Base
   end
 
   def self.method_missing(method,*args)
-    super unless method.to_s =~ find_by_method? && !(column_names - (list = $1.tr('_','').split('and'))).empty?
+    super unless method.to_s =~ find_by_method? && !(column_names - (list = $1.split('_and_'))).empty?
     args.map! {|arg| "'#{arg}'"}
     sql_query = list.map.with_index {|name, index| "#{name} = #{args[index]}"} .join(' AND ')
-    self.parse_db_result(Base.connection.query("SELECT * FROM #{self.name} WHERE " + sql_query ))
+    parse_db_result(Base.connection.query("SELECT * FROM #{self.name} WHERE " + sql_query ))
   end
 
   def self.respond_to_missing?(method, include_private = false)
@@ -57,17 +57,25 @@ class Base
       values = hash_or_sql_string.values
       sql_query = keys.inject([]){|arr,item| arr << "#{item} = ?"}.join('')
       
-      self.parse_db_result(Base.connection.query("SELECT * FROM #{self.name} WHERE " + sql_query,values))
+      parse_db_result(Base.connection.query("SELECT * FROM #{self.name} WHERE " + sql_query,values))
     elsif hash_or_sql_string.is_a? String
-      self.parse_db_result(Base.connection.query("SELECT * FROM #{self.name} WHERE "+hash_or_sql_string ,args ))
+      parse_db_result(Base.connection.query("SELECT * FROM #{self.name} WHERE "+hash_or_sql_string ,args ))
     else
       raise 'bad arguments'
     end
   end
 
+  def self.last
+    parse_db_result(Base.connection.query("SELECT * FROM table_name ORDER BY ID DESC LIMIT 1"))
+  end
+
+  def self.first
+    parse_db_result(Base.connection.query("SELECT * FROM table_name LIMIT 1"))
+  end
+
   def self.find(id)
     if id.is_a?(Integer)
-      self.parse_db_result(Base.connection.query("SELECT #{column_names.join(',')} FROM #{self.name} WHERE ID = #{id}"))
+      parse_db_result(Base.connection.query("SELECT #{column_names.join(',')} FROM #{self.name} WHERE ID = #{id}"))
     else
       puts "Only integer id's are supported"
       return false
@@ -88,6 +96,7 @@ class Base
 
   def self.parse_db_result(pg_result_object)
     values = pg_result_object.values.flatten
+    return if values.empty?
     rec = self.new
     (0..(column_names.length-1)).each do |index|
       rec.instance_eval "self.#{column_names[index]}=values[index]"
@@ -96,6 +105,6 @@ class Base
   end
 
   def self.find_by_method?()
-    /^find_by([_a-zA-Z]*)[^=?]*$/
+    /^find_by_([_a-zA-Z]*)[^=?]*$/
   end
 end
