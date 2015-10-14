@@ -1,2 +1,2 @@
 require 'fake_record'
-require 'fixture'
+require 'abs_factory'

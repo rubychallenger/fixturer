@@ -15,7 +15,7 @@ class Base
 
     values = (self.class.column_names - ["id"]).map {|column| "'" + (self.send(column.to_sym) if self.respond_to? column.to_sym).to_s + "'" }
 
-    puts sql_querys =  "INSERT INTO #{self.class.name.downcase} (#{keys}) VALUES (#{values.join(',')}) "
+    puts sql_querys =  "INSERT INTO #{self.class.name.downcase}s (#{keys}) VALUES (#{values.join(',')}) "
     begin
       Base.connection.query(sql_querys)
       true
@@ -44,7 +44,7 @@ class Base
     super unless method.to_s =~ find_by_method? && !(column_names - (list = $1.split('_and_'))).empty?
     args.map! {|arg| "'#{arg}'"}
     sql_query = list.map.with_index {|name, index| "#{name} = #{args[index]}"} .join(' AND ')
-    parse_db_result(Base.connection.query("SELECT * FROM #{self.name} WHERE " + sql_query ))
+    parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE " + sql_query ))
   end
 
   def self.respond_to_missing?(method, include_private = false)
@@ -57,9 +57,9 @@ class Base
       values = hash_or_sql_string.values
       sql_query = keys.inject([]){|arr,item| arr << "#{item} = ?"}.join('')
       
-      parse_db_result(Base.connection.query("SELECT * FROM #{self.name} WHERE " + sql_query,values))
+      parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE " + sql_query,values))
     elsif hash_or_sql_string.is_a? String
-      parse_db_result(Base.connection.query("SELECT * FROM #{self.name} WHERE "+hash_or_sql_string ,args ))
+      parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s WHERE "+hash_or_sql_string ,args ))
     else
       raise 'bad arguments'
     end
@@ -75,7 +75,7 @@ class Base
 
   def self.find(id)
     if id.is_a?(Integer)
-      parse_db_result(Base.connection.query("SELECT #{column_names.join(',')} FROM #{self.name} WHERE ID = #{id}"))
+      parse_db_result(Base.connection.query("SELECT #{column_names.join(',')} FROM #{self.name}s WHERE ID = #{id}"))
     else
       puts "Only integer id's are supported"
       return false
@@ -86,7 +86,7 @@ class Base
     DBconnect.instance().query("
       select column_name
       from information_schema.columns 
-      where table_name = '#{self.name.downcase}'
+      where table_name = '#{self.name.downcase}s'
       ").values.flatten
   end
 

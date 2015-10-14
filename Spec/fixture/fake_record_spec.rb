@@ -5,30 +5,30 @@ module Fixturer
   describe "FakeRecord" do
     before(:all) do
       DBconnect.instance().query("
-        CREATE TABLE HUMANS (
+        CREATE TABLE HUMANs (
         ID BIGSERIAL PRIMARY KEY  NOT NULL,
         NAME           TEXT,
         LAST_NAME      TEXT)
       ")
-      FakeRecord.create_class_for_table('humans') unless Object.const_defined? 'Humans'
+      FakeRecord.create_class_for_table('humans') unless Object.const_defined? 'Human'
     end
 
     after(:all) do
       FakeRecord.delete_class('Humans')
 
       DBconnect.instance().query("
-        DROP TABLE HUMANS
+        DROP TABLE HUMANs
       ")
     end
 
     it "creates class for every db table" do 
-      v = Humans.new     
+      v = Human.new     
       v.should be
       v.instance_variable_get("@attr").should include("name","last_name")
     end
 
     it "creates getter and setter method on call of db columns(e.g. .name, .name=)" do
-      v = Humans.new
+      v = Human.new
       v.name="text"
       v.last_name="cmon"
       v.name.should == "text"
@@ -37,17 +37,17 @@ module Fixturer
     end
 
     it "ensures that created classes respond to .where .find .find_by_name" do
-      Humans.should respond_to(:where,:find,:find_by_name)
+      Human.should respond_to(:where,:find,:find_by_name)
     end
 
     it "allows save and find of db records" do
-      v = Humans.new
+      v = Human.new
       v.name="testtext"
       v.last_name="cmontest"
       v.save
-      Humans.find(1).should be_instance_of(Humans)
-      Humans.find(1).name.should == "testtext"
-      Humans.find(1).last_name.should == "cmontest"
+      Human.find(1).should be_instance_of(Human)
+      Human.find(1).name.should == "testtext"
+      Human.find(1).last_name.should == "cmontest"
     end
   end 
 end

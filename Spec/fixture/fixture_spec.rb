@@ -10,13 +10,13 @@ module Fixturer
       end
 
       DBconnect.instance().query("
-        CREATE TABLE HUMANS (
+        CREATE TABLE HUMANs (
         ID BIGSERIAL PRIMARY KEY  NOT NULL,
         NAME           TEXT,
         LAST_NAME      TEXT )
       ")
 
-      FakeRecord.create_class_for_table('humans') unless Object.const_defined? 'Humans'
+      FakeRecord.create_class_for_table('humans') unless Object.const_defined? 'Human'
     end
 
     after(:all) do
@@ -45,9 +45,9 @@ module Fixturer
       fix = Fixture.new("human",IniFactory)
       fix.save_to_db
 
-      Humans.find(1).name.should == 'San'
-      Humans.find(1).last_name.should == 'Bom'
-      Humans.find(1).should_not respond_to :age, :age=
+      Human.find(1).name.should == 'San'
+      Human.find(1).last_name.should == 'Bom'
+      Human.find(1).should_not respond_to :age, :age=
     end
   end 
 end

@@ -10,7 +10,9 @@ module DBClasses
   end
 
   def create_class_for_table(table_name)
-    Object.const_set( table_name.capitalize, Class.new(Base))
+    name = table_name.capitalize
+    name[table_name.length-1]=""
+    Object.const_set( name, Class.new(Base))
   end
 
   def delete_class(class_name)
