@@ -7,7 +7,10 @@ module FakeRecord
     end
 
     def initialize
-     @attr = self.class.column_names
+      @attr = self.class.column_names
+      @attr.each do |att|
+        self.class.class_eval("attr_accessor :#{att}")
+      end
     end
 
     def save
@@ -19,18 +22,18 @@ module FakeRecord
       Base.connection.query(sql_query)
     end
 
-    def get_or_set_method?()
-     /^([a-zA-Z][-_\w]*)[[^?]=]*$/
-    end
+    #def get_or_set_method?()
+    # /^([a-zA-Z][-_\w]*)[[^?]=]*$/
+    #end
 
-    def method_missing(method,*args)
-      if method.to_s =~ get_or_set_method? && @attr.include?($1)
-        self.class.create_get_and_set_method($1)
-        self.send method, args[0]
-      else
-        super
-      end    
-    end
+    #def method_missing(method,*args)
+      #if method.to_s =~ get_or_set_method? && @attr.include?($1)
+      #  self.class.create_get_and_set_method($1)
+      #  self.send method, args[0]
+      #else
+      #super
+      #end    
+    #end
 
     def self.method_missing(method,*args)
       super unless method.to_s =~ find_by_method? && !(column_names - (list = $1.split('_and_'))).empty?
@@ -78,9 +81,9 @@ module FakeRecord
         ").values.flatten
     end
 
-    def self.create_get_and_set_method(attr_name)
-      class_eval("def #{attr_name}=(new_value); @#{attr_name}=new_value;end;def #{attr_name}; @#{attr_name} ;end;", __FILE__, __LINE__)
-    end
+    #def self.create_get_and_set_method(attr_name)
+    #  class_eval("def #{attr_name}=(new_value); @#{attr_name}=new_value;end;def #{attr_name}; @#{attr_name} ;end;", __FILE__, __LINE__)
+    #end
 
     def self.parse_db_result(pg_result_object)
       values = pg_result_object.values.flatten
