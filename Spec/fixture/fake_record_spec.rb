@@ -4,7 +4,6 @@ require 'fake_record'
 module Fixturer
   describe "FakeRecord" do
     before(:all) do
-      DBconnect.instance().connect
       DBconnect.instance().query("
         CREATE TABLE HUMANS (
         ID BIGSERIAL PRIMARY KEY  NOT NULL,
@@ -15,6 +14,8 @@ module Fixturer
     end
 
     after(:all) do
+      FakeRecord.delete_class('Humans')
+
       DBconnect.instance().query("
         DROP TABLE HUMANS
       ")

@@ -1,5 +1,5 @@
 task :check do
-  con = DBconnect.instance().connect
+  con = DBconnect.instance()
   tables = con.query("
       SELECT table_name
       FROM information_schema.tables

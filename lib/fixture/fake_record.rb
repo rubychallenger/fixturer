@@ -1,8 +1,8 @@
-require 'base'
 require 'dbclasses'
 
 class FakeRecord
-  extend Base
+  require 'base'
+
   extend DBClasses
 
   table_names.flatten.each do |table|

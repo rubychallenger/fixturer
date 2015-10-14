@@ -4,7 +4,6 @@ require 'fake_record'
 module Fixturer
   describe "search" do
     before(:all) do
-      DBconnect.instance().connect
       DBconnect.instance().query("
         CREATE TABLE HUMANS (
         ID BIGSERIAL PRIMARY KEY  NOT NULL,
@@ -18,6 +17,8 @@ module Fixturer
     end
 
     after(:all) do
+      FakeRecord.delete_class('Humans')
+
       DBconnect.instance().query("
         DROP TABLE HUMANS
       ")
@@ -41,8 +42,6 @@ module Fixturer
       (Humans.where("name = 'Dan'")).should be_instance_of(Humans)
       (Humans.where("name = ?",'Dan')).should be_instance_of(Humans)
       (Humans.where(name: 'Dan')).should be_instance_of(Humans)
-      puts Humans.where("name = ?",'Dan')
-      puts Humans.where("name = ?",'Dan').name
       Humans.where("name = ?",'Dan').name.should == 'Dan'
       Humans.where("name = 'Dan'").name.should == 'Dan'
       Humans.where(name: 'Dan').name.should == 'Dan'

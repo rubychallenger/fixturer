@@ -9,7 +9,6 @@ module Fixturer
         f.write("data['alias1']['name'] = 'San' \ndata['alias1']['last_name'] = 'Bom' \ndata['alias1']['age'] = 20")
       end
 
-      DBconnect.instance().connect
       DBconnect.instance().query("
         CREATE TABLE HUMANS (
         ID BIGSERIAL PRIMARY KEY  NOT NULL,
@@ -17,10 +16,11 @@ module Fixturer
         LAST_NAME      TEXT )
       ")
 
-      DBclasses.create_class_for_table('humans') unless Object.const_defined? 'Humans'
+      FakeRecord.create_class_for_table('humans') unless Object.const_defined? 'Humans'
     end
 
     after(:all) do
+      FakeRecord.delete_class('Humans')
       DBconnect.instance().query("
         DROP TABLE humans
       ")
