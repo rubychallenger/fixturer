@@ -2,7 +2,6 @@ require 'dbconnect'
 
 module FakeRecord
   class Base
-
     def self.connection
       DBconnect.instance()
     end
@@ -26,8 +25,6 @@ module FakeRecord
 
     def method_missing(method,*args)
       if method.to_s =~ get_or_set_method? && @attr.include?($1)
-        #puts $1
-        #puts method.to_s
         self.class.create_get_and_set_method($1)
         self.send method, args[0]
       else
@@ -61,11 +58,11 @@ module FakeRecord
     end
 
     def self.last
-      parse_db_result(Base.connection.query("SELECT * FROM table_name ORDER BY ID DESC LIMIT 1"))
+      parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s ORDER BY ID DESC LIMIT 1"))
     end
 
     def self.first
-      parse_db_result(Base.connection.query("SELECT * FROM table_name LIMIT 1"))
+      parse_db_result(Base.connection.query("SELECT * FROM #{self.name}s LIMIT 1"))
     end
 
     def self.find(id)

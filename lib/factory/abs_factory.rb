@@ -9,6 +9,10 @@ class FixtureFactory
     @format.new(name)
   end
 
+  def parse
+    raise "Not yet implemented: parse for #{self.name}"
+  end
+
   class IniFactory
     def initialize(table_name)
       @table_name = table_name
@@ -45,27 +49,23 @@ class FixtureFactory
     end
   end
 
-  class ModelFactory
-    def initialize(name)
-      @name = name
-      Object.const_set(@name.capitalize, Class.new(Base)) unless Object.const_defined? @name.capitalize
-    end
-  end
+  #class ModelFactory
+  #  def initialize(name)
+  #    @name = name
+  #    Object.const_set(@name.capitalize, Class.new(Base)) unless Object.const_defined? @name.capitalize
+  #  end
+  #end
 end
 
 class Fixture < FixtureFactory
   def initialize(table_name,fixture_factory)
-    @table_name = table_name
-    @fixture = fixture_factory.new_file("#{@table_name}").parse
+    @model = Object.const_get(table_name.capitalize)
+    @fixture = fixture_factory.new_file("#{table_name}").parse
   end
 
   def save_to_db
-    begin
-      rec = (Object.const_get((@table_name).capitalize)).new
-    rescue NameError
-      puts "NO SUCH DB TABLE: #{@table_name}s"
-      return
-    end
+    rec = @model.new
+
     atr = rec.instance_variable_get("@attr")  
     @fixture = @fixture.each do |element|
       element.delete_if {|k,v| !(atr.include? k.to_s)}
