@@ -1,4 +1,4 @@
-require 'abs_factory'
+require 'factory/abs_factory'
 
 class Fixture < FixtureFactory
   def initialize(table_name,fixture_factory)
@@ -10,14 +10,15 @@ class Fixture < FixtureFactory
     rec = @model.new
 
     atr = rec.instance_variable_get("@attr")  
-    @fixture = @fixture.each do |element|
-      element.delete_if {|k,v| !(atr.include? k.to_s)}
-    end
-    @fixture.map! do |record|
-      record.each {|hash| rec.instance_eval "self.#{hash[0]}=hash[1]"}
+    arr = []
+    @fixture.each do |element|
+      element.each {|k,v| rec.instance_eval "self.#{k}=v" if atr.include? k.to_s }
       rec.save
-      rec
+      arr << rec
+      rec = @model.new
     end
+
+    @fixture = arr
   end
 
   def clear_records

@@ -1,4 +1,4 @@
-require 'dbconnect'
+#require 'dbconnect'
 
 module FakeRecord
   class DBClasses

@@ -1,4 +1,4 @@
-require 'hash'
+#require 'hash'
 class FixtureFactory
   def initialize(format)
     @format = self.class.const_get(format.capitalize+"Factory")
@@ -12,8 +12,8 @@ class FixtureFactory
     raise "Not yet implemented: parse for #{self.name}"
   end
 
-  require 'ini_factory'
-  require 'json_factory'
+  require 'factory/ini_factory'
+  require 'factory/json_factory'
   #class ModelFactory
   #  def initialize(name)
   #    @name = name

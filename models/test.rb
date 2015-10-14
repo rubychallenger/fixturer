@@ -1,3 +1,3 @@
-require 'fake_record'
+#require 'fake_record'
 class Test < FakeRecord::Base
 end
