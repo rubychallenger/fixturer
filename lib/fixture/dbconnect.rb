@@ -1,6 +1,7 @@
 require 'singleton'
+require 'pg'
+
 class DBconnect
-  require 'pg'
   include Singleton
 
   def connect(host="localhost",port=5432,dbname="testapp",master_user="postgres",password="123456")

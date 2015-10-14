@@ -35,11 +35,16 @@ module Fixturer
       v.should respond_to(:name,:name=,:last_name,:last_name=)
     end
 
+    it "ensures that created classes respond to .where .find .find_by_name" do
+      Humans.should respond_to(:where,:find,:find_by_name)
+    end
+
     it "allows save and find of db records" do
       v = Humans.new
       v.name="testtext"
       v.last_name="cmontest"
       v.save
+      Humans.find(1).should be_instance_of(Humans)
       Humans.find(1).name.should == "testtext"
       Humans.find(1).last_name.should == "cmontest"
     end

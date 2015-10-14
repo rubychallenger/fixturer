@@ -1,9 +1,8 @@
 require 'spec_helper'
-require 'dbconnect'
 
 module Fixturer
   describe "dbconnect" do
-    before(:each) {  @dbconnect_class = DBconnect.clone    }
+    before(:each) {  @dbconnect_class = DBconnect.clone  }
 
     it "throws error if connected with wrong info" do
       begin
