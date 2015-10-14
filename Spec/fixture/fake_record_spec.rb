@@ -1,11 +1,10 @@
 require 'spec_helper'
-require 'fake_record'
 
 module Fixturer
   describe "FakeRecord" do
     before(:all) do
       DBconnect.instance().query("
-        CREATE TABLE HUMANs (
+        CREATE TABLE humans (
         ID BIGSERIAL PRIMARY KEY  NOT NULL,
         NAME           TEXT,
         LAST_NAME      TEXT)
@@ -14,10 +13,10 @@ module Fixturer
     end
 
     after(:all) do
-      FakeRecord.delete_class('Humans')
+      FakeRecord.delete_class('Human')
 
       DBconnect.instance().query("
-        DROP TABLE HUMANs
+        DROP TABLE humans
       ")
     end
 

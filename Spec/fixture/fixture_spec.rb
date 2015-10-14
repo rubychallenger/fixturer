@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'fake_record'
-require 'fixture'
 
 module Fixturer
   describe "fixture" do
@@ -8,7 +6,6 @@ module Fixturer
       File.open(File.expand_path('../../../fixtures', __FILE__)+"/human.ini","w+") do |f|
         f.write("data['alias1']['name'] = 'San' \ndata['alias1']['last_name'] = 'Bom' \ndata['alias1']['age'] = 20")
       end
-
       DBconnect.instance().query("
         CREATE TABLE HUMANs (
         ID BIGSERIAL PRIMARY KEY  NOT NULL,
@@ -20,7 +17,7 @@ module Fixturer
     end
 
     after(:all) do
-      FakeRecord.delete_class('Humans')
+      FakeRecord.delete_class('Human')
       DBconnect.instance().query("
         DROP TABLE humans
       ")
@@ -28,21 +25,24 @@ module Fixturer
     end
 
     it "initializes a factory on new" do
-      fix = Fixture.new("human",IniFactory)
-      fix.instance_variable_get("@info").should be_a IniFactory::IniFile
+      fact = FixtureFactory.new('ini')
+      fact.should be_instance_of FixtureFactory
+      fact.new_file('human').should be_instance_of FixtureFactory::IniFactory
+      Fixture.new("human",fact).should be
     end
 
     it "parses file to array of hashes through factory" do
-      fix = Fixture.new("human",IniFactory)
-      info = fix.instance_variable_get("@info").parse('human')
-      info.should be_a Array
-      info.each do |i|
+      fact = FixtureFactory.new('ini')
+      fix = Fixture.new("human",fact).instance_variable_get("@fixture")
+      fix.should be_a Array
+      fix.each do |i|
         i.should be_a Hash
       end
     end
 
     it "saves file to db" do
-      fix = Fixture.new("human",IniFactory)
+      fact = FixtureFactory.new('ini')
+      fix = Fixture.new("human", fact)
       fix.save_to_db
 
       Human.find(1).name.should == 'San'
