@@ -2,10 +2,6 @@ module FakeRecord
   class Base
     extend Search
     include DataOperations
-    
-    def self.connection
-      DBconnect.instance()
-    end
 
     def initialize
       @attr = self.class.column_names
@@ -17,7 +13,7 @@ module FakeRecord
 
     private 
       def self.column_names
-        DBconnect.instance().query("
+        DBconnect.instance.query("
           select column_name
           from information_schema.columns 
           where table_name = '#{self.name.downcase}s'
@@ -25,7 +21,7 @@ module FakeRecord
       end
 
       def set_start_id
-        Base.connection.query("SELECT MAX(id) FROM #{self.class.name}s").values.flatten[0].to_i + 1
+        DBconnect.instance.query("SELECT MAX(id) FROM #{self.class.name}s").values.flatten[0].to_i + 1
       end
   end
 end

@@ -65,5 +65,13 @@ describe "fixturer" do
 
       Test.last.destroy
     end
+
+    it "can pull record from db, update it and save back" do
+      rec = Test.last
+      rec.name = "Chessie"
+      rec.save
+
+      expect(Test.last.name).to eq "Chessie"
+    end
   end
 end 
