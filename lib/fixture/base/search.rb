@@ -1,12 +1,7 @@
 module Search
   def method_missing(method,*args)
     super unless find_by_method?(method)
-    res = where(list = Hash[method.to_s[8..-1].split('_and_').zip(args)])
-    list.include?("id") ? res[0] : res
-  end
-
-  def find_by_method?(method)
-    method.to_s =~ /^find_by_([_a-zA-Z]*)[^=?]*$/ && ($1.split('_and_') - column_names).empty?
+    find_by_method(method,args)
   end
 
   def respond_to_missing?(method, include_private = false)
@@ -32,15 +27,20 @@ module Search
   end
 
   def find(id)
-    begin
-      parse_db_result(DBconnect.instance.query("SELECT #{self.column_names.join(',')} FROM #{self.name}s WHERE ID = #{id}"))[0]
-    rescue => error
-      puts error
-      return false
-    end
+    parse_db_result(DBconnect.instance.query("SELECT #{self.column_names.join(',')} FROM #{self.name}s WHERE ID = #{id}"))[0]
   end
 
   private
+
+    def find_by_method?(method)
+      method.to_s =~ /^find_by_([_a-zA-Z]*)[^=?]*$/ && ($1.split('_and_') - column_names).empty?
+    end
+
+    def find_by_method(method,*args)
+      args = args[0] if args.length == 1
+      res = where(Hash[method.to_s[8..-1].split('_and_').zip(args)])
+      method.to_s[8..-1].split('_and_').include?("id") ? res[0] : res
+    end
 
     def parse_db_result(pg_result_object)
       result = []
@@ -53,7 +53,7 @@ module Search
 
         result << rec
       end
-      result
+      result.sort_by {|res| res.id.to_i}
     end
    
 

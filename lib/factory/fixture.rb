@@ -7,21 +7,24 @@ class Fixture < FixtureFactory
   end
 
   def save_to_db
-    rec = @model.new
+    len = @fixture.length
 
-    atr = rec.instance_variable_get("@attr")  
-    arr = []
-    @fixture.each do |element|
-      element.each {|k,v| rec.instance_eval "self.#{k}=v" if atr.include? k.to_s }
-      rec.save
-      arr << rec
-      rec = @model.new
+    (0..len-1).each do |index|
+      save_element_to_db_and_update_fixture(index)
     end
-
-    @fixture = arr
   end
 
   def clear_records
     @fixture.each {|rec| rec.destroy} if @fixture[0].is_a? @model
   end
+
+  private
+
+    def save_element_to_db_and_update_fixture(index)
+      record = @model.new
+      @fixture[index].each {|k,v| record.instance_eval "self.#{k}=v" if record.attributes.include? k.to_s }
+      record.save
+      @fixture[index] = record
+    end
+
 end

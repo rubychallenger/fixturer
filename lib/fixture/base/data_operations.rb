@@ -1,11 +1,6 @@
 module DataOperations
   def save
-    if self.class.find(self.id)
-      DBconnect.instance.query(update_sql_query)
-    else
-      DBconnect.instance.query(create_sql_query)
-      self.id = self.class.last.id.to_i
-    end
+    record_exists? ? update_record : save_record
   end
 
   #def update_attributes(hash)
@@ -41,7 +36,19 @@ module DataOperations
   #   class_eval("def #{attr_name}=(new_value); @#{attr_name}=new_value;end;def #{attr_name}; @#{attr_name} ;end;", __FILE__, __LINE__)
   # end
   private
-  
+    def update_record
+      DBconnect.instance.query(update_sql_query)
+    end
+
+    def save_record
+      DBconnect.instance.query(create_sql_query)
+      self.id = self.class.last.id.to_i
+    end
+
+    def record_exists?
+      self.class.find(self.id) != nil
+    end
+
     def create_sql_query
       "INSERT INTO #{self.class.name}s (#{keys.join(',')}) VALUES (#{values.join(',')}) "
     end

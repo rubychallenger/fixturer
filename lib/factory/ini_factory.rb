@@ -15,4 +15,5 @@ class IniFactory
     eval(ini)
     data.values
   end
+
 end
