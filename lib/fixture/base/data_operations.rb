@@ -47,15 +47,15 @@ module DataOperations
     end
 
     def update_sql_query
-      "UPDATE #{self.class.name}s SET " + key_value_sql + "WHERE ID = #{self.id}"
+      "UPDATE #{self.class.name}s SET " + key_value_sql_string + "WHERE ID = #{self.id}"
     end
 
     def hash_params
       Hash[keys.zip(values)]
     end
 
-    def key_value_sql
-      (0..(keys.length - 1)).inject(""){|index,str| str << (index == 0 ? "" : ", ") + "#{keys[index]} = #{values[index]}"  }
+    def key_value_sql_string
+      (0..(keys.length - 1)).inject(""){|str,index| str << (index == 0 ? "" : ", ") + "#{keys[index]} = #{values[index]}"  }
     end
 
     def keys

@@ -1,16 +1,16 @@
 module Search
   def method_missing(method,*args)
-    super unless  find_by_method?(method)
-    res = where(Hash[list.zip(args)])
-    list.include? "id" ? res[0] : res
+    super unless find_by_method?(method)
+    res = where(list = Hash[method.to_s[8..-1].split('_and_').zip(args)])
+    list.include?("id") ? res[0] : res
   end
 
   def find_by_method?(method)
-    method.to_s =~ /^find_by_([_a-zA-Z]*)[^=?]*$/ && !(($1 = $1.split('_and_')) - column_names).empty?
+    method.to_s =~ /^find_by_([_a-zA-Z]*)[^=?]*$/ && ($1.split('_and_') - column_names).empty?
   end
 
   def respond_to_missing?(method, include_private = false)
-    (method.to_s =~ find_by_method? && !(column_names - $1.tr('_','').split('and')).empty?) || super
+    find_by_method?(method) || super
   end
 
   def where(hash_or_sql_string,*args)
@@ -43,12 +43,18 @@ module Search
   private
 
     def parse_db_result(pg_result_object)
-      pg_result_object.values.inject([]) do |array,value| 
-        array << self.new.instance_eval "
-        (1..column_names.length).each {self.#{column_names[index-1]} = value[index-1]}"
-      end
-    end
+      result = []
+      pg_result_object.values.each do |value|
+        rec = self.new
 
+        (0..(column_names.length-1)).each do |index|
+          rec.instance_eval "self.#{column_names[index]}=value[index]"
+        end
+
+        result << rec
+      end
+      result
+    end
    
 
     def query_with_hash(hash)
