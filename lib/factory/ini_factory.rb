@@ -1,19 +1,12 @@
-class IniFactory
+class IniFactory < FixtureFactory
   def initialize(table_name)
     @table_name = table_name
   end
 
   def parse
-    ini = ""
     data = Hash.recursive
-    File.open(File.expand_path('../../../fixtures', __FILE__)+"/#{@table_name}.ini", 'r') do |file|
-      while (line = file.gets)
-        ini << line
-      end
-    end
+    eval(get_data_from_fixture(@table_name,'ini'))
 
-    eval(ini)
     data.values
   end
-
 end

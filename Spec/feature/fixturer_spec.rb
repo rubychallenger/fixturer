@@ -32,8 +32,8 @@ describe "fixturer" do
       (f2 = Fixture.new('Test',FixtureFactory.new('json'))).save_to_db
       expect(b).to_not equal a
       c = Test.last
-      f1.clear_records
-      f2.clear_records
+      f1.clear_associated_records
+      f2.clear_associated_records
       expect(c.name).to eq b.name
       expect(c.last_name).to eq b.last_name
       expect(c).to_not equal b
@@ -68,9 +68,11 @@ describe "fixturer" do
 
     it "can pull record from db, update it and save back" do
       rec = Test.last
+      name = rec.name
       rec.name = "Chessie"
       rec.save
 
+      expect(Test.last.name).to_not eq name
       expect(Test.last.name).to eq "Chessie"
     end
   end

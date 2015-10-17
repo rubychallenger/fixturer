@@ -7,18 +7,28 @@ class Fixture < FixtureFactory
   end
 
   def save_to_db
-    len = @fixture.length
-
-    (0..len-1).each do |index|
-      save_element_to_db_and_update_fixture(index)
+    if already_saved?
+      puts "already saved this fixture to db"
+    else
+      save
     end
   end
 
-  def clear_records
-    @fixture.each {|rec| rec.destroy} if @fixture[0].is_a? @model
+  def clear_associated_records
+    @fixture.each {|rec| rec.destroy} if already_saved?
   end
 
   private
+
+    def already_saved?
+      !(@fixture[0].is_a? Hash)
+    end
+
+    def save
+      (0..@fixture.length-1).each do |index|
+        save_element_to_db_and_update_fixture(index)
+      end
+    end
 
     def save_element_to_db_and_update_fixture(index)
       record = @model.new

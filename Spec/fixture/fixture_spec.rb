@@ -26,7 +26,7 @@ module Fixturer
       expect(Test.last.last_name).to eq 'Winchester'
       expect(Test.last).to_not respond_to :age, :age=
 
-      fix.clear_records
+      fix.clear_associated_records
     end
   end 
 end
