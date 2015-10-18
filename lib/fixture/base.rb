@@ -17,7 +17,6 @@ module FakeRecord
     private 
 
       def create_accessors_for_attributes
-
         @attr.each do |att|
           self.class.class_eval("attr_accessor :#{att}")
         end

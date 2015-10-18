@@ -40,23 +40,32 @@ module Search
     def use_find_by_method(method,*args)
       args = args[0] if args.length == 1
       res = where(Hash[method.to_s[8..-1].split('_and_').zip(args)])
-      method.to_s[8..-1].split('_and_').include?("id") ? res[0] : res
+      search_by_id?(method) ? res[0] : res
+    end
+
+    def search_by_id?(method)
+      method.to_s[8..-1].split('_and_').include?("id")
     end
 
     def parse_db_result(pg_result_object)
       result = []
-      pg_result_object.values.each do |value|
-        rec = self.new
 
-        (0..(column_names.length-1)).each do |index|
-          rec.instance_eval "self.#{column_names[index]}=value[index]"
-        end
-
-        result << rec
+      pg_result_object.values.each do |value|       
+        add_value_to_result(value,result)
       end
+
       result.sort_by {|res| res.id.to_i}
     end
    
+    def add_value_to_result(value,result)
+      rec = self.new
+
+      (0..(column_names.length-1)).each do |index|
+        rec.instance_eval "self.#{column_names[index]}=value[index]"
+      end
+      
+      result << rec
+    end
 
     def query_with_hash(hash)
       sql_query = hash.keys.inject([]){|arr,item| arr << "#{item} = ?"}.join(' AND ')
