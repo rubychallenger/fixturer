@@ -1,9 +1,8 @@
-require 'factory/abs_factory'
-
 class Fixture < FixtureFactory
   def initialize(table_name,fixture_factory)
     @model = Object.const_get(table_name.capitalize)
-    @fixture = fixture_factory.new_file("#{table_name}").parse
+    @parsedData = fixture_factory.new_file("#{table_name}").parse
+    @associated_objects = []
   end
 
   def save_to_db
@@ -15,26 +14,26 @@ class Fixture < FixtureFactory
   end
 
   def clear_associated_records
-    @fixture.each {|rec| rec.destroy} if already_saved?
+    @associated_objects.each {|rec| rec.destroy}
   end
 
   private
 
     def already_saved?
-      !(@fixture[0].is_a? Hash)
+      @associated_objects != []
     end
 
     def save
-      (0..@fixture.length-1).each do |index|
-        save_element_to_db_and_update_fixture(index)
+      (0..@parsedData.length-1).each do |index|
+        save_element_to_db_and_addto_objects(index)
       end
     end
 
-    def save_element_to_db_and_update_fixture(index)
+    def save_element_to_db_and_addto_objects(index)
       record = @model.new
-      @fixture[index].each {|k,v| record.instance_eval "self.#{k}=v" if record.attributes.include? k.to_s }
+      @parsedData[index].each {|k,v| record.instance_eval "self.#{k}=v" if record.attributes.include? k.to_s }
       record.save
-      @fixture[index] = record
+      @associated_objects << record
     end
 
 end

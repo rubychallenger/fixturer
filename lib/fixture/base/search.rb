@@ -1,7 +1,7 @@
 module Search
   def method_missing(method,*args)
     super unless find_by_method?(method)
-    find_by_method(method,args)
+    use_find_by_method(method,args)
   end
 
   def respond_to_missing?(method, include_private = false)
@@ -9,9 +9,10 @@ module Search
   end
 
   def where(hash_or_sql_string,*args)
-    if hash_or_sql_string.is_a? Hash
+    case hash_or_sql_string
+    when Hash
       query_with_hash(hash_or_sql_string)
-    elsif hash_or_sql_string.is_a? String
+    when String
       query_with_sql_string(hash_or_sql_string, args)
     else
       raise 'where accepts only hash or string arguments'
@@ -36,7 +37,7 @@ module Search
       method.to_s =~ /^find_by_([_a-zA-Z]*)[^=?]*$/ && ($1.split('_and_') - column_names).empty?
     end
 
-    def find_by_method(method,*args)
+    def use_find_by_method(method,*args)
       args = args[0] if args.length == 1
       res = where(Hash[method.to_s[8..-1].split('_and_').zip(args)])
       method.to_s[8..-1].split('_and_').include?("id") ? res[0] : res
@@ -64,6 +65,6 @@ module Search
 
     def query_with_sql_string(sql_string,*args)
       args = args[0] if args.length == 1
-      parse_db_result(DBconnect.instance.query("SELECT * FROM #{self.name}s WHERE "+sql_string ,args ))
+      parse_db_result(DBconnect.instance.query("SELECT * FROM #{self.name}s WHERE " + sql_string ,args ))
     end
 end

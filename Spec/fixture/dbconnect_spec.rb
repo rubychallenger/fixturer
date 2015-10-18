@@ -13,7 +13,7 @@ module Fixturer
     end
     
     it "got connection to at least default db" do
-      expect(@dbconnect_class.instance().conn).to be_a PG::Connection
+      expect(@dbconnect_class.instance().connection).to be_a PG::Connection
     end
 
     it "can perform sql query after connect" do

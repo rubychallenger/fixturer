@@ -10,9 +10,9 @@ Assuming:
 
 3. Supported models created in /models/{model_name}.rb with following make_up:
   Example : models/user.rb
-    require 'fake_record'
     class User < FakeRecord::Base
     end
+     
 4.There is fixture in /fixtures/*.(ini|json) with data given in the proper format as supplied in the task
 
 5. postgreSQL connects with:

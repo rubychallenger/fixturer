@@ -8,7 +8,7 @@ module FakeRecord
         FROM information_schema.tables
         WHERE table_schema='public'
         AND table_type='BASE TABLE';
-        ").map {|e| e.values}
+        ").map {|response| response.values}
     end
 
     def self.create_class_for_table(table_name)

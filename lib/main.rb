@@ -1,6 +1,9 @@
 ##dependencies
 require 'fixture/hash'
 ##factory
+require 'factory/abs_factory'
+require 'factory/ini_factory'
+require 'factory/json_factory'
 require 'factory/fixture'
 ##fakerecord
 require 'fixture/dbconnect'

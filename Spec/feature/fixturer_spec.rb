@@ -3,7 +3,7 @@ require 'spec_helper'
 describe "fixturer" do
   describe "db_connection" do
     it "DBconnect.instance() got connection" do
-      expect(DBconnect.instance().instance_variable_get("@conn")).to be_a PG::Connection
+      expect(DBconnect.instance().instance_variable_get("@connection")).to be_a PG::Connection
     end
   end
 
@@ -67,7 +67,12 @@ describe "fixturer" do
     end
 
     it "can pull record from db, update it and save back" do
+      while Test.last.name == "Chessie"
+        Test.last.destroy
+      end
+      
       rec = Test.last
+
       name = rec.name
       rec.name = "Chessie"
       rec.save

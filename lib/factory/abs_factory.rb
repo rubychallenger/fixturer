@@ -1,11 +1,11 @@
 #require 'hash'
 class FixtureFactory
   def initialize(format)
-    @format = self.class.const_get(format.capitalize+"Factory")
+    @format_class = self.class.const_get(format.capitalize+"Factory")
   end
 
   def new_file(name)
-    @format.new(name)
+    @format_class.new(name)
   end
 
   def parse
@@ -23,8 +23,6 @@ class FixtureFactory
     data
   end
 
-  require 'factory/ini_factory'
-  require 'factory/json_factory'
   #class ModelFactory
   #  def initialize(name)
   #    @name = name

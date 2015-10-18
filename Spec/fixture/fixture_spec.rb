@@ -11,7 +11,7 @@ module Fixturer
 
     it "parses file to array of hashes through factory" do
       fact = FixtureFactory.new('json')
-      fix = Fixture.new("Test",fact).instance_variable_get("@fixture")
+      fix = Fixture.new("Test",fact).instance_variable_get("@parsedData")
       expect(fix).to be_a Array
       fix.each do |i|
         expect(i).to be_a Hash
