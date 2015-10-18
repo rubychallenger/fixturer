@@ -15,7 +15,7 @@ Assuming:
      
 4.There is fixture in /fixtures/*.(ini|json) with data given in the proper format as supplied in the task
 
-5. postgreSQL connects with:
+5.postgreSQL connects with:
   host: localhost
   port: 5432
   database: testapp
@@ -24,9 +24,6 @@ Assuming:
 
 It can be changed in lib/fixture/dbconnect.rb or
 with DBconnect.instance().reconnect(localhost,port,database,username,password)
-
-
-Abstract factory for file extensions: Ini and Json.
 
 Install:
   bundle install
